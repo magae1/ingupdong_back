@@ -5,7 +5,7 @@ import django
 PROJECT_DIR = os.path.abspath('..')
 sys.path.append(PROJECT_DIR)
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'ingupdong.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'back.settings'
 django.setup()
 
 BOT_NAME = "youtube_scrapy"
@@ -15,6 +15,8 @@ NEWSPIDER_MODULE = "youtube_scrapy.spiders"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
+
+# LOG_LEVEL = 'INFO'
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay

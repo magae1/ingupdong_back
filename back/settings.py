@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
+    'ingupdong',
 ]
 
 MIDDLEWARE = [
@@ -50,7 +51,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'ingupdong.urls'
+ROOT_URLCONF = 'back.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ingupdong.wsgi.application'
+WSGI_APPLICATION = 'back.wsgi.application'
 
 
 # Database
@@ -84,8 +85,9 @@ DATABASES = {
         'HOST': CONFIG[BUILD_MODE]['HOST'],
         'PORT': CONFIG[BUILD_MODE]['PORT'],
         'OPTIONS': {
-            'init_command': 'SET sql_mode="STRICT_TRANS_TABLES"'
-        }
+            'init_command': 'SET sql_mode="STRICT_TRANS_TABLES"',
+            'charset': 'utf8mb4'
+        },
     }
 }
 

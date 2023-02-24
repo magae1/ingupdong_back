@@ -7,4 +7,5 @@ class VideoItem(scrapy.Item):
     url = scrapy.Field()
     views = scrapy.Field()
     channel = scrapy.Field()        # 채널명
-    channel_uuid = scrapy.Field()
+    handle = scrapy.Field()
+    record_id = scrapy.Field()
