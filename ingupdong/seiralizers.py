@@ -53,7 +53,7 @@ class WithPrevTrendingSerializer(TrendingSerializer):
 
     def get_prev_rank(self, obj):
         try:
-            prev_date = RecordingBoard.objects.order_by('-record_at')[1]
+            prev_date = RecordingBoard.objects.all()[:1]
             prev_trend = TrendingBoard.objects.get(record=prev_date,
                                                    video=obj.video)
         except ObjectDoesNotExist:

@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 
 
 class Channel(models.Model):
@@ -29,17 +29,19 @@ class RecordingBoard(models.Model):
 
     class Meta:
         db_table = 'recording'
-        get_latest_by = 'date'
+        get_latest_by = ['date', 'time']
+        ordering = ['-date', 'time']
 
 
 class TrendingManager(models.Manager):
+    @transaction.atomic
     def create_trending(self, rank, title, url, views, channel, handle, record_id):
         channel, create = Channel.objects.get_or_create(name=channel, handle=handle)
-        video, create = Video.objects.get_or_create(url=url,
-                                                    defaults={
+        video, create = Video.objects.update_or_create(url=url,
+                                                       defaults={
                                                         'channel': channel,
                                                         'title': title,
-                                                    })
+                                                       })
         return self.create(rank=rank, video=video, views=views, record_id=record_id)
 
 
@@ -54,5 +56,4 @@ class TrendingBoard(models.Model):
 
     class Meta:
         db_table = 'trending'
-        ordering = ['rank']
-
+        ordering = ['record', 'rank']

@@ -22,9 +22,7 @@ SECRET_KEY = CONFIG['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = BUILD_MODE != 'production'
 
-ALLOWED_HOSTS = [
-    '127.0.0.1', 'localhost'
-]
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -43,15 +41,20 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
 
 ROOT_URLCONF = 'back.urls'
 
@@ -139,10 +142,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
 }
-
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost',
-)
 
 # Format string for displaying run time timestamps in the Django admin site. The default
 # just adds seconds to the standard Django format, which is useful for displaying the timestamps
