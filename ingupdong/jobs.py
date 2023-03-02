@@ -1,17 +1,22 @@
+import os
 import requests
 from django_apscheduler import util
 from ingupdong.models import RecordingBoard, TrendingBoard
 
 
+SCRAPY_URL = os.environ.get('SCRAPY_URL', 'localhost')
+
+
 @util.close_old_connections
 def get_new_trending():
     record_id = RecordingBoard.objects.create().id
-    req = requests.get(url="http://localhost:9080/crawl.json",
+    req = requests.get(url=f'http://{SCRAPY_URL}:9080/crawl.json',
                        params={
                            "spider_name": "youtube",
                            "start_requests": "true",
                        },
                        timeout=25)
+    req.close()
     items = req.json()['items']
     for item in items:
         TrendingBoard.customs.create_trending(rank=item['rank'],
@@ -22,7 +27,6 @@ def get_new_trending():
                                               handle=item['handle'],
                                               record_id=record_id,
                                               )
-    req.close()
 
 
 def print_hellos():

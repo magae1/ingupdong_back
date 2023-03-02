@@ -22,7 +22,10 @@ SECRET_KEY = CONFIG['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = BUILD_MODE != 'production'
 
-ALLOWED_HOSTS = ['*']
+FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'localhost')
+ALLOWED_HOSTS = [
+    FRONT_DOMAIN,
+]
 
 # Application definition
 
@@ -51,10 +54,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+FRONT_URL = os.environ.get('FRONT_URL', 'http://127.0.0.1')
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    FRONT_URL,
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    FRONT_URL,
+]
+
+CORS_URLS_REGEX = r"^/api/|/admin/.*$"
 
 ROOT_URLCONF = 'back.urls'
 
@@ -158,5 +168,3 @@ APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 # that supports multiple background worker processes instead (e.g. Dramatiq, Celery, Django-RQ,
 # etc. See: https://djangopackages.org/grids/g/workers-queues-tasks/ for popular options).
 APSCHEDULER_RUN_NOW_TIMEOUT = 30  # Seconds
-
-SCHEDULER_AUTOSTART = True

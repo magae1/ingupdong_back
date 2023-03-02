@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
         scheduler.add_job(
             get_new_trending,
-            trigger=CronTrigger(minute="*/5"),
+            trigger=CronTrigger(hour="21"),
             id="get_new_trending",
             max_instances=1,
             replace_existing=True,

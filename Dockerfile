@@ -1,26 +1,25 @@
 FROM python:3.9.16-slim-bullseye
-# setup environment variable
-ENV DockerHOME=/home/app/webapp
-
-# set work directory
-RUN mkdir -p $DockerHOME
 
 # where your code lives
-WORKDIR $DockerHOME
+WORKDIR $HOME_DIR
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-ENV BUILD_TYPE production
 
 # install dependencies
 RUN pip install --upgrade pip
 
 # copy whole project to your docker home directory.
-COPY . $DockerHOME
+COPY . .
+
 # run this command to install all dependencies
 RUN pip install -r requirements.txt
+
 # port where the Django app runs
 EXPOSE 8000
+
+RUN python manage.py makemigrations ingupdong
+RUN python manage.py migrate
 # start server
-CMD python manage.py runserver
+CMD gunicorn back.wsgi:application --bind 0.0.0.0:8000
