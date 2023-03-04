@@ -2,8 +2,10 @@ from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.decorators import action
+
 from ingupdong.models import TrendingBoard, RecordingBoard
 from ingupdong.seiralizers import TrendingSerializer, WithPrevTrendingSerializer, RecordingSerializer
+from ingupdong.filters import RecordingFilterSet, TrendingFilterSet
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -13,15 +15,10 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 
 class TrendingViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = TrendingBoard.objects.all()
     serializer_class = TrendingSerializer
     pagination_class = StandardResultsSetPagination
-
-    def get_queryset(self):
-        record_id = self.request.query_params.get('date_id')
-        queryset = TrendingBoard.objects.filter(record=RecordingBoard.objects.latest())
-        if record_id is not None:
-            queryset = TrendingBoard.objects.filter(record_id=record_id)
-        return queryset
+    filterset_class = TrendingFilterSet
 
     @action(detail=False)
     def latest_trend(self, request):
@@ -37,4 +34,5 @@ class TrendingViewSet(viewsets.ReadOnlyModelViewSet):
 class RecordingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RecordingBoard.objects.all()
     serializer_class = RecordingSerializer
+    filterset_class = RecordingFilterSet
 

@@ -22,7 +22,7 @@ SECRET_KEY = CONFIG['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = BUILD_MODE != 'production'
 
-FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'localhost')
+FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', '*')
 ALLOWED_HOSTS = [
     FRONT_DOMAIN,
 ]
@@ -150,6 +150,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
     ],
 }
 
