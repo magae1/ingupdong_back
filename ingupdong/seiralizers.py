@@ -12,6 +12,31 @@ class RecordingSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class NavRecordingSerializer(RecordingSerializer):
+    prev_record = serializers.SerializerMethodField(allow_null=True)
+    next_record = serializers.SerializerMethodField(allow_null=True)
+
+    class Meta:
+        model = RecordingBoard
+        fields = '__all__'
+
+    def get_prev_record(self, obj):
+        try:
+            data = RecordingBoard.objects.filter(date__lt=obj.date).order_by('-date', '-time').first()
+            data = RecordingSerializer(data).data
+        except ObjectDoesNotExist:
+            return None
+        return data
+
+    def get_next_record(self, obj):
+        try:
+            data = RecordingBoard.objects.filter(date__gt=obj.date).order_by('date', 'time').first()
+            data = RecordingSerializer(data).data
+        except ObjectDoesNotExist:
+            return None
+        return data
+
+
 class ChannelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Channel
@@ -24,7 +49,7 @@ class ChannelSerializer(serializers.ModelSerializer):
 
 
 class VideoSerializer(serializers.ModelSerializer):
-    channel = serializers.StringRelatedField(many=False)
+    channel = ChannelSerializer(many=False)
 
     class Meta:
         model = Video
@@ -45,15 +70,15 @@ class TrendingSerializer(serializers.ModelSerializer):
 
 
 class WithPrevTrendingSerializer(TrendingSerializer):
-    prev_rank = serializers.SerializerMethodField(allow_null=True)
+    prev_trend = serializers.SerializerMethodField(allow_null=True)
 
     class Meta:
         model = TrendingBoard
         exclude = ['id', 'record']
 
-    def get_prev_rank(self, obj):
+    def get_prev_trend(self, obj):
         try:
-            prev_date = RecordingBoard.objects.all()[1]
+            prev_date = RecordingBoard.objects.filter(date__lt=obj.record.date).order_by('-date', '-time').first()
             prev_trend = TrendingBoard.objects.get(record=prev_date,
                                                    video=obj.video)
         except ObjectDoesNotExist:

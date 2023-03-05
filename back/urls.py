@@ -22,7 +22,7 @@ from ingupdong.views import TrendingViewSet, RecordingViewSet
 
 router = routers.DefaultRouter()
 router.register(r'trending', TrendingViewSet, basename='trend')
-router.register(r'recording', RecordingViewSet)
+router.register(r'recording', RecordingViewSet, basename='record')
 
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
