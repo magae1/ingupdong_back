@@ -8,6 +8,7 @@ SCRAPY_URL = os.environ.get('SCRAPY_URL', 'localhost')
 
 
 @util.close_old_connections
+@util.retry_on_db_operational_error
 def get_new_trending():
     record_id = RecordingBoard.objects.create().id
     req = requests.get(url=f'http://{SCRAPY_URL}:9080/crawl.json',

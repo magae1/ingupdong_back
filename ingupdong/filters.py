@@ -11,8 +11,6 @@ class RecordingFilterSet(filters.FilterSet):
 
 
 class TrendingFilterSet(filters.FilterSet):
-    record_at = filters.ModelChoiceFilter(queryset=RecordingBoard.objects.all(), label="record_at")
-
     class Meta:
         model = TrendingBoard
         fields = ['rank']

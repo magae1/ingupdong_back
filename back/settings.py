@@ -1,14 +1,11 @@
 import os
 from pathlib import Path
-import yaml
+from dotenv import load_dotenv
 import pymysql
 
+load_dotenv()
 
 BUILD_MODE = os.environ.get('BUILD_TYPE', 'default')
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-with open(BASE_DIR / 'config.yaml') as f:
-    CONFIG = yaml.load(f, Loader=yaml.FullLoader)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = CONFIG['SECRET_KEY']
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = BUILD_MODE != 'production'
@@ -53,6 +50,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = BUILD_MODE != 'production'
 
 FRONT_URL = os.environ.get('FRONT_URL', 'http://localhost:3000')
 
@@ -93,11 +92,11 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': CONFIG[BUILD_MODE]['NAME'],
-        'USER': CONFIG[BUILD_MODE]['USER'],
-        'PASSWORD': CONFIG[BUILD_MODE]['PASSWORD'],
-        'HOST': CONFIG[BUILD_MODE]['HOST'],
-        'PORT': CONFIG[BUILD_MODE]['PORT'],
+        'NAME': os.environ['MYSQL_NAME'],
+        'USER': os.environ['MYSQL_USER'],
+        'PASSWORD': os.environ['MYSQL_PASSWORD'],
+        'HOST': os.environ['MYSQL_HOST'],
+        'PORT': os.environ['MYSQL_PORT'],
         'OPTIONS': {
             'init_command': 'SET sql_mode="STRICT_TRANS_TABLES"',
             'charset': 'utf8mb4'
@@ -154,6 +153,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
 }
 
 # Format string for displaying run time timestamps in the Django admin site. The default
