@@ -16,7 +16,7 @@ def get_new_trending():
                            "spider_name": "youtube",
                            "start_requests": "true",
                        },
-                       timeout=25)
+                       timeout=100)
     req.close()
     items = req.json()['items']
     for item in items:
