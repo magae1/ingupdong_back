@@ -9,7 +9,7 @@ from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 from django_apscheduler import util
 
-from ingupdong.jobs import get_new_trending
+from ingupdong.jobs import crawl_youtube_trending
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +38,13 @@ class Command(BaseCommand):
         scheduler.add_jobstore(DjangoJobStore(), "default")
 
         scheduler.add_job(
-            get_new_trending,
+            crawl_youtube_trending,
             trigger=CronTrigger(hour="21"),
-            id="get_new_trending",
+            id="crawl-youtube-trending",
             max_instances=1,
             replace_existing=True,
         )
-        logger.info("Added job 'get_new_trending'.")
+        logger.info("Added job 'crawl-youtube-trending'.")
 
         scheduler.add_job(
             delete_old_job_executions,
