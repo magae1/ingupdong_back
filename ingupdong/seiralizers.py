@@ -12,7 +12,7 @@ class RecordingSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class NavRecordingSerializer(RecordingSerializer):
+class PrevAndNextRecordingSerializer(serializers.ModelSerializer):
     prev_record = serializers.SerializerMethodField(allow_null=True)
     next_record = serializers.SerializerMethodField(allow_null=True)
 
@@ -63,13 +63,6 @@ class VideoSerializer(serializers.ModelSerializer):
 
 class TrendingSerializer(serializers.ModelSerializer):
     video = VideoSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = TrendingBoard
-        exclude = ['id', 'record']
-
-
-class WithPrevTrendingSerializer(TrendingSerializer):
     prev_trend = serializers.SerializerMethodField(allow_null=True)
 
     class Meta:

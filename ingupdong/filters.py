@@ -3,11 +3,11 @@ from ingupdong.models import RecordingBoard, TrendingBoard
 
 
 class RecordingFilterSet(filters.FilterSet):
-    month = filters.DateFromToRangeFilter(field_name='date', label='month')
+    month = filters.NumberFilter(field_name='date', lookup_expr='month', required=True)
 
     class Meta:
         model = RecordingBoard
-        fields = ['date']
+        fields = ['month']
 
 
 class TrendingFilterSet(filters.FilterSet):
