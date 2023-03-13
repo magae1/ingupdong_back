@@ -2,6 +2,8 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from django_apscheduler import util
+from django.db import connection
+from django.db.utils import OperationalError
 from ingupdong.models import RecordingBoard, TrendingBoard
 
 

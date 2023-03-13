@@ -5,4 +5,3 @@ Dockerfile
 .venv
 README.md
 .gitignore
-.env
