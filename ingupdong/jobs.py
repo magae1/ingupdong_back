@@ -2,12 +2,24 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from django_apscheduler import util
+from functools import wraps
 from django.db import connection
 from django.db.utils import OperationalError
 from ingupdong.models import RecordingBoard, TrendingBoard
 
 
 CRAWL_URL = os.environ.get('CRAWL_URL', 'localhost')
+
+
+def db_auto_reconnect(func):
+    @wraps(func)
+    def wrapper(*args, **kwagrs):
+        try:
+            connection.connection.ping()
+        except OperationalError:
+            connection.close()
+        return func(*args, **kwagrs)
+    return wrapper
 
 
 def get_num(string):
@@ -20,7 +32,7 @@ def clear_param(string):
 
 
 @util.close_old_connections
-@util.retry_on_db_operational_error
+@db_auto_reconnect
 def crawl_youtube_trending():
     req = requests.get(url=f'https://{CRAWL_URL}/crawl-youtube-by-selenium', timeout=30)
     soup = BeautifulSoup(req.text, 'html.parser')
