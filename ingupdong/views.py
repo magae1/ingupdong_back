@@ -1,11 +1,12 @@
-from rest_framework import viewsets
+from rest_framework import viewsets,filters
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404, Http404
 
-from ingupdong.models import TrendingBoard, RecordingBoard
-from ingupdong.seiralizers import TrendingSerializer, RecordingSerializer, PrevAndNextRecordingSerializer
+from ingupdong.models import TrendingBoard, RecordingBoard, Channel
+from ingupdong.seiralizers import TrendingSerializer, RecordingSerializer, \
+    PrevAndNextRecordingSerializer, ChannelSerializer
 from ingupdong.filters import RecordingFilterSet, TrendingFilterSet
 
 
@@ -56,4 +57,10 @@ class RecordingViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = PrevAndNextRecordingSerializer(record_obj, many=False)
         return Response(serializer.data)
 
+
+class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Channel.objects.all()
+    serializer_class = ChannelSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 

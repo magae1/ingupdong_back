@@ -18,11 +18,12 @@ from django.urls import path, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from rest_framework import routers
-from ingupdong.views import TrendingViewSet, RecordingViewSet
+from ingupdong.views import TrendingViewSet, RecordingViewSet, ChannelViewSet
 
 router = routers.DefaultRouter()
 router.register(r'trending', TrendingViewSet, basename='trend')
 router.register(r'recording', RecordingViewSet, basename='record')
+router.register(r'channel', ChannelViewSet, basename='channel')
 
 urlpatterns = [
     path('api/', include(router.urls)),

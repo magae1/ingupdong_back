@@ -4,7 +4,9 @@ from bs4 import BeautifulSoup
 from django_apscheduler import util
 from functools import wraps
 from django.db import connection
+from django_apscheduler.models import DjangoJobExecution
 from django.db.utils import OperationalError
+
 from ingupdong.models import RecordingBoard, TrendingBoard
 
 
@@ -32,7 +34,6 @@ def clear_param(string):
 
 
 @util.close_old_connections
-@db_auto_reconnect
 def crawl_youtube_trending():
     req = requests.get(url=f'https://{CRAWL_URL}/crawl-youtube-by-selenium', timeout=30)
     soup = BeautifulSoup(req.text, 'html.parser')
@@ -54,5 +55,17 @@ def crawl_youtube_trending():
                                               )
 
 
-def print_hellos():
-    print("Hello World!")
+# The `close_old_connections` decorator ensures that database connections, that have become
+# unusable or are obsolete, are closed before and after your job has run. You should use it
+# to wrap any jobs that you schedule that access the Django database in any way.
+@util.close_old_connections
+def delete_old_job_executions(max_age=604_800):
+    """
+    This job deletes APScheduler job execution entries older than `max_age` from the database.
+    It helps to prevent the database from filling up with old historical records that are no
+    longer useful.
+
+    :param max_age: The maximum length of time to retain historical job execution records.
+                    Defaults to 7 days.
+    """
+    DjangoJobExecution.objects.delete_old_job_executions(max_age)
