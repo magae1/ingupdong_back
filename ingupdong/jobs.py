@@ -2,26 +2,12 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from django_apscheduler import util
-from functools import wraps
-from django.db import connection
 from django_apscheduler.models import DjangoJobExecution
-from django.db.utils import OperationalError
 
 from ingupdong.models import RecordingBoard, TrendingBoard
 
 
 CRAWL_URL = os.environ.get('CRAWL_URL', 'localhost')
-
-
-def db_auto_reconnect(func):
-    @wraps(func)
-    def wrapper(*args, **kwagrs):
-        try:
-            connection.connection.ping()
-        except OperationalError:
-            connection.close()
-        return func(*args, **kwagrs)
-    return wrapper
 
 
 def get_num(string):
