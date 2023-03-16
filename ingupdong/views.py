@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, Http404
 
 from ingupdong.models import TrendingBoard, RecordingBoard, Channel
 from ingupdong.seiralizers import TrendingSerializer, RecordingSerializer, \
-    PrevAndNextRecordingSerializer, ChannelSerializer
+    PrevAndNextRecordingSerializer, ChannelSerializer, ChannelWithLatestVideoSerializer
 from ingupdong.filters import RecordingFilterSet, TrendingFilterSet
 
 
@@ -46,9 +46,8 @@ class RecordingViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = RecordingSerializer
     filterset_class = RecordingFilterSet
 
-    @action(detail=True, methods=['get'], name='Get previous and next record')
-    def details(self, request, pk=None):
-        query = RecordingBoard.objects.all()
+    def retrieve(self, request, pk=None):
+        query = self.get_queryset()
         if pk == 'latest':
             pk = RecordingBoard.objects.latest().id
         elif not pk.isnumeric():
@@ -63,4 +62,9 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ChannelSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
-
+    def retrieve(self, request, pk=None):
+        query = self.get_queryset()
+        serializer = ChannelWithLatestVideoSerializer
+        channel_obj = get_object_or_404(query, pk=pk)
+        data = serializer(channel_obj).data
+        return Response(data)

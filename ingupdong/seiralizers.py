@@ -12,6 +12,12 @@ class RecordingSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SimpleVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = '__all__'
+
+
 class PrevAndNextRecordingSerializer(serializers.ModelSerializer):
     prev_record = serializers.SerializerMethodField(allow_null=True)
     next_record = serializers.SerializerMethodField(allow_null=True)
@@ -42,18 +48,29 @@ class ChannelSerializer(serializers.ModelSerializer):
         model = Channel
         fields = '__all__'
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data['handle'] = YOUTUBE_URL + data['handle']
+
+class ChannelWithLatestVideoSerializer(ChannelSerializer):
+    latest_video = serializers.SerializerMethodField(allow_null=True)
+
+    class Meta:
+        model = Channel
+        fields = '__all__'
+
+    def get_latest_video(self, obj):
+        try:
+            query = Video.objects.filter(channel=obj).order_by('-id').first()
+            data = SimpleVideoSerializer(query).data
+        except ObjectDoesNotExist:
+            return None
         return data
 
 
-class VideoSerializer(serializers.ModelSerializer):
+class VideoSerializer(SimpleVideoSerializer):
     channel = ChannelSerializer(many=False)
 
     class Meta:
         model = Video
-        exclude = ['id']
+        fields = '__all__'
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
