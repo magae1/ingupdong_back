@@ -51,6 +51,7 @@ class TrendingBoard(models.Model):
                               related_name='video')
     views = models.PositiveBigIntegerField()
     record = models.ForeignKey(RecordingBoard, on_delete=models.CASCADE)
+
     customs = TrendingManager()
     objects = models.Manager()
 
