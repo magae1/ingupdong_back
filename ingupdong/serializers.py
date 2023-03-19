@@ -29,7 +29,7 @@ class VideoSerializer(SimpleVideoSerializer):
 
     class Meta:
         model = Video
-        fields = '__allxw__'
+        fields = '__all__'
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
