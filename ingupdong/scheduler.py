@@ -9,7 +9,7 @@ def start():
     scheduler = BackgroundScheduler(timezone=settings.TIME_ZONE)
     scheduler.add_job(
         crawl_youtube_trending,
-        trigger=CronTrigger(hour="21", minute="30", jitter=60*30),
+        trigger=CronTrigger(hour="22", minute="00"),
         id="crawl-youtube-trending",
         max_instances=1,
         replace_existing=True,

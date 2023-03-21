@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from ingupdong.models import Channel, Video, RecordingBoard, TrendingBoard
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import F
 
 
 YOUTUBE_URL = "https://www.youtube.com/"
@@ -15,7 +16,12 @@ class RecordingSerializer(serializers.ModelSerializer):
 class SimpleVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
-        fields = '__all__'
+        fields = ['id', 'title', 'url']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['url'] = YOUTUBE_URL + data['url']
+        return data
 
 
 class ChannelSerializer(serializers.ModelSerializer):
@@ -30,11 +36,6 @@ class VideoSerializer(SimpleVideoSerializer):
     class Meta:
         model = Video
         fields = '__all__'
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data['url'] = YOUTUBE_URL + data['url']
-        return data
 
 
 class TrendingSerializer(serializers.ModelSerializer):
@@ -112,3 +113,29 @@ class TrendingWithPrevSerializer(serializers.ModelSerializer):
             'views': prev_trend.views
         }
 
+
+class VideoWithRecordsSerializer(VideoSerializer):
+    records = serializers.SerializerMethodField(allow_null=False)
+
+    class Meta:
+        model = Video
+        exclude = ['id']
+
+    def get_records(self, obj):
+        record_objs = TrendingBoard.objects.filter(video=obj)\
+            .select_related('record').values_list('record__date', flat=True).reverse()
+        return record_objs.all()
+
+
+class VideoWithRecordAtSerializer(SimpleVideoSerializer):
+    record_at = serializers.SerializerMethodField(allow_null=False)
+
+    class Meta:
+        model = Video
+        fields = '__all__'
+
+    def get_record_at(self, obj):
+        record_obj = TrendingBoard.objects.filter(video=obj)\
+            .select_related('record').latest('record').record
+        data = RecordingSerializer(record_obj, many=False).data
+        return data.get('date')

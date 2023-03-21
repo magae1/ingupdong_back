@@ -1,13 +1,13 @@
 from rest_framework import viewsets,filters
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404, Http404
 
-from ingupdong.models import TrendingBoard, RecordingBoard, Channel
+from ingupdong.models import TrendingBoard, RecordingBoard, Channel, Video
 from ingupdong.serializers import TrendingWithPrevSerializer, RecordingSerializer, \
-    PrevAndNextRecordingSerializer, ChannelSerializer, ChannelWithLatestTrendSerializer
-from ingupdong.filters import RecordingFilterSet, TrendingFilterSet
+    PrevAndNextRecordingSerializer, ChannelSerializer, ChannelWithLatestTrendSerializer, \
+    VideoWithRecordsSerializer, VideoWithRecordAtSerializer
+from ingupdong.filters import RecordingFilterSet, VideoFilterSet
 
 
 class TrendPagination(LimitOffsetPagination):
@@ -17,10 +17,15 @@ class TrendPagination(LimitOffsetPagination):
     max_limit = 50
 
 
+class VideoPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page'
+    max_page_size = 10
+
+
 class TrendingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TrendingBoard.objects.all()
     serializer_class = TrendingWithPrevSerializer
-    filterset_class = TrendingFilterSet
     pagination_class = TrendPagination
 
     def list(self, request):
@@ -69,4 +74,18 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = ChannelWithLatestTrendSerializer
         channel_obj = get_object_or_404(query, pk=pk)
         data = serializer(channel_obj).data
+        return Response(data)
+
+
+class VideoViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Video.objects.all().order_by('id')
+    serializer_class = VideoWithRecordAtSerializer
+    filterset_class = VideoFilterSet
+    pagination_class = VideoPagination
+
+    def retrieve(self, request, pk=None):
+        query = self.get_queryset()
+        serializer = VideoWithRecordsSerializer
+        video_obj = get_object_or_404(query, pk=pk)
+        data = serializer(video_obj).data
         return Response(data)
