@@ -21,13 +21,20 @@ def clear_param(string):
 
 @util.close_old_connections
 def crawl_youtube_trending():
-    req = requests.get(url=f'https://{CRAWL_URL}/crawl-youtube-by-selenium', timeout=30)
-    soup = BeautifulSoup(req.text, 'html.parser')
-    req.close()
-    record_id = RecordingBoard.objects.create().id
+    videos = []
+    while True:
+        req = requests.get(url=f'https://{CRAWL_URL}/crawl-youtube-by-selenium', timeout=30)
+        soup = BeautifulSoup(req.text, 'html.parser')
+        req.close()
+        record_id = RecordingBoard.objects.create().id
 
-    video_sections = soup.find_all('ytd-expanded-shelf-contents-renderer')
-    videos = video_sections[0].find_all('ytd-video-renderer') + video_sections[1].find_all('ytd-video-renderer')
+        try:
+            video_sections = soup.find_all('ytd-expanded-shelf-contents-renderer')
+            videos = video_sections[0].find_all('ytd-video-renderer') + video_sections[1].find_all('ytd-video-renderer')
+        except IndexError:
+            continue
+        else:
+            break
 
     for index, video in enumerate(videos):
         tags = video.find_all("yt-formatted-string", limit=2)

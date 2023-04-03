@@ -31,7 +31,7 @@ class TrendingViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request):
         raise Http404("잘못된 요청입니다.")
 
-    def retrieve(self, request, pk='latest'):
+    def retrieve(self, request, pk=None):
         if pk == 'latest':
             trend_query = TrendingBoard.objects.filter(record=RecordingBoard.objects.latest())
         else:
