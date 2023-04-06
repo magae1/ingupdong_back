@@ -133,6 +133,7 @@ class VideoWithRecordAtSerializer(SimpleVideoSerializer):
     class Meta:
         model = Video
         fields = '__all__'
+        ordering = ['-id']
 
     def get_record_at(self, obj):
         record_obj = TrendingBoard.objects.filter(video=obj)\

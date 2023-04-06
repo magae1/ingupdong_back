@@ -1,6 +1,7 @@
 import os
 import requests
 from bs4 import BeautifulSoup
+from django.db import connections
 from django_apscheduler import util
 from django_apscheduler.models import DjangoJobExecution
 
@@ -62,3 +63,8 @@ def delete_old_job_executions(max_age=604_800):
                     Defaults to 7 days.
     """
     DjangoJobExecution.objects.delete_old_job_executions(max_age)
+
+
+@util.close_old_connections
+def connect_with_db():
+    connections['default'].connect()
