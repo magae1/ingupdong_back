@@ -17,7 +17,8 @@ from django.urls import path, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from rest_framework import routers
-from ingupdong.views import TrendingViewSet, RecordingViewSet, ChannelViewSet, VideoViewSet
+from ingupdong.views import TrendingViewSet, RecordingViewSet, ChannelViewSet, VideoViewSet,\
+    ChannelListView
 
 router = routers.DefaultRouter()
 router.register(r'trending', TrendingViewSet, basename='trend')
@@ -27,6 +28,7 @@ router.register(r'video', VideoViewSet, basename='video')
 
 urlpatterns = [
     path('api/', include(router.urls)),
+    path('api/search/', ChannelListView.as_view()),
     path('admin/', admin.site.urls),
 ]
 

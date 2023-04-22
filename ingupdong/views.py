@@ -1,5 +1,6 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, generics
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, Http404
 
@@ -66,21 +67,35 @@ class RecordingViewSet(viewsets.ReadOnlyModelViewSet):
 class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Channel.objects.all()
     serializer_class = ChannelSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
-
+    pagination_class = VideoPagination
+    
+    def list(self, request):
+        raise Http404("잘못된 요청입니다.")
+    
     def retrieve(self, request, pk=None):
         query = self.get_queryset()
         serializer = ChannelWithLatestTrendSerializer
         channel_obj = get_object_or_404(query, pk=pk)
         data = serializer(channel_obj).data
         return Response(data)
+    
+    @action(detail=True, methods=['get'], name='get videos on the channel')
+    def videos(self, request, pk=None):
+        query = Video.objects.filter(channel_id=pk).order_by('-id')
+        # page = self.paginate_queryset(query)
+        # if page is not None:
+        #     serializer = VideoWithRecordAtSerializer(page, many=True)
+        #     return self.get_paginated_response(serializer.data)
+        serializer = VideoWithRecordAtSerializer(query, many=True)
+        return Response(serializer.data)
 
 
 class VideoViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Video.objects.all().order_by('id')
+    queryset = Video.objects.all()
     serializer_class = VideoWithRecordAtSerializer
-    filterset_class = VideoFilterSet
+    
+    def list(self, request, *args, **kwargs):
+        raise Http404()
 
     def retrieve(self, request, pk=None):
         query = self.get_queryset()
@@ -88,3 +103,12 @@ class VideoViewSet(viewsets.ReadOnlyModelViewSet):
         video_obj = get_object_or_404(query, pk=pk)
         data = serializer(video_obj).data
         return Response(data)
+
+
+class ChannelListView(generics.ListAPIView):
+    queryset = Channel.objects.all()
+    serializer_class = ChannelSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
+    
+    

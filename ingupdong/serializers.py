@@ -24,6 +24,12 @@ class SimpleVideoSerializer(serializers.ModelSerializer):
         return data
 
 
+class SimpleTrendingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrendingBoard
+        fields = ['rank', 'views']
+
+
 class ChannelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Channel
@@ -38,7 +44,7 @@ class VideoSerializer(SimpleVideoSerializer):
         fields = '__all__'
 
 
-class TrendingSerializer(serializers.ModelSerializer):
+class TrendingSerializer(SimpleTrendingSerializer):
     video = SimpleVideoSerializer(many=False, read_only=True)
     record = RecordingSerializer(many=False, read_only=True)
 
