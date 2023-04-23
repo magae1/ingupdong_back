@@ -44,13 +44,12 @@ class VideoSerializer(SimpleVideoSerializer):
         fields = '__all__'
 
 
-class TrendingSerializer(SimpleTrendingSerializer):
-    video = SimpleVideoSerializer(many=False, read_only=True)
-    record = RecordingSerializer(many=False, read_only=True)
+class TrendingWithRecordSerializer(SimpleTrendingSerializer):
+    day = serializers.StringRelatedField(many=False, read_only=True, source='record')
 
     class Meta:
         model = TrendingBoard
-        fields = '__all__'
+        fields = ['day', 'rank', 'views']
 
 
 class PrevAndNextRecordingSerializer(serializers.ModelSerializer):

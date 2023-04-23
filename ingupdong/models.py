@@ -31,6 +31,9 @@ class RecordingBoard(models.Model):
         db_table = 'recording'
         get_latest_by = ['date', 'time']
         ordering = ['-date', 'time']
+        
+    def __str__(self):
+        return f'{self.date} {self.time}'
 
 
 class TrendingManager(models.Manager):

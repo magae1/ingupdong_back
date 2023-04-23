@@ -11,10 +11,3 @@ class RecordingFilterSet(filters.FilterSet):
         model = RecordingBoard
         fields = ['month', 'year']
 
-
-class VideoFilterSet(filters.FilterSet):
-    channel_id = filters.NumberFilter(field_name='channel_id', lookup_expr='exact', required=True)
-
-    class Meta:
-        model = Video
-        fields = ['channel_id']

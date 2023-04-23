@@ -7,8 +7,8 @@ from django.shortcuts import get_object_or_404, Http404
 from ingupdong.models import TrendingBoard, RecordingBoard, Channel, Video
 from ingupdong.serializers import TrendingWithPrevSerializer, RecordingSerializer, \
     PrevAndNextRecordingSerializer, ChannelSerializer, ChannelWithLatestTrendSerializer, \
-    VideoWithRecordsSerializer, VideoWithRecordAtSerializer
-from ingupdong.filters import RecordingFilterSet, VideoFilterSet
+    VideoWithRecordsSerializer, VideoWithRecordAtSerializer, TrendingWithRecordSerializer
+from ingupdong.filters import RecordingFilterSet
 
 
 class TrendPagination(LimitOffsetPagination):
@@ -19,7 +19,7 @@ class TrendPagination(LimitOffsetPagination):
 
 
 class VideoPagination(PageNumberPagination):
-    page_size = 5
+    page_size = 10
     page_size_query_param = 'page'
     max_page_size = 10
 
@@ -82,27 +82,33 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, methods=['get'], name='get videos on the channel')
     def videos(self, request, pk=None):
         query = Video.objects.filter(channel_id=pk).order_by('-id')
-        # page = self.paginate_queryset(query)
-        # if page is not None:
-        #     serializer = VideoWithRecordAtSerializer(page, many=True)
-        #     return self.get_paginated_response(serializer.data)
+        page = self.paginate_queryset(query)
+        if page is not None:
+            serializer = VideoWithRecordAtSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = VideoWithRecordAtSerializer(query, many=True)
         return Response(serializer.data)
 
 
 class VideoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Video.objects.all()
-    serializer_class = VideoWithRecordAtSerializer
+    serializer_class = VideoWithRecordsSerializer
     
     def list(self, request, *args, **kwargs):
         raise Http404()
 
     def retrieve(self, request, pk=None):
         query = self.get_queryset()
-        serializer = VideoWithRecordsSerializer
+        serializer = self.get_serializer_class()
         video_obj = get_object_or_404(query, pk=pk)
         data = serializer(video_obj).data
         return Response(data)
+    
+    @action(detail=True, methods=['get'], name="get video's views and rank")
+    def graphed(self, request, pk=None):
+        query = TrendingBoard.objects.filter(video_id=pk).order_by('id')
+        serializer = TrendingWithRecordSerializer(query, many=True)
+        return Response(serializer.data)
 
 
 class ChannelListView(generics.ListAPIView):
