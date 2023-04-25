@@ -3,11 +3,10 @@ from django.db import models, transaction
 
 class Channel(models.Model):
     name = models.CharField(max_length=150)
-    handle = models.CharField(max_length=50)
+    handle = models.CharField(max_length=50, unique=True)
 
     class Meta:
         db_table = 'channel'
-        unique_together = [['name', 'handle']]
 
     def __str__(self):
         return self.name
@@ -39,7 +38,7 @@ class RecordingBoard(models.Model):
 class TrendingManager(models.Manager):
     @transaction.atomic
     def create_trending(self, rank, title, url, views, channel, handle, record_id):
-        channel, create = Channel.objects.get_or_create(name=channel, handle=handle)
+        channel, create = Channel.objects.get_or_create(name=channel, defaults={dict(handle=handle)})
         video, create = Video.objects.update_or_create(url=url,
                                                        defaults={
                                                         'channel': channel,

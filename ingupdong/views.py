@@ -74,20 +74,29 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
     
     def retrieve(self, request, pk=None):
         query = self.get_queryset()
-        serializer = ChannelWithLatestTrendSerializer
         channel_obj = get_object_or_404(query, pk=pk)
+        serializer = ChannelWithLatestTrendSerializer
         data = serializer(channel_obj).data
         return Response(data)
     
-    @action(detail=True, methods=['get'], name='get videos on the channel')
+    @action(detail=True, methods=['get'], name='videos on the channel')
     def videos(self, request, pk=None):
-        query = Video.objects.filter(channel_id=pk).order_by('-id')
-        page = self.paginate_queryset(query)
+        query = self.get_queryset()
+        channel_obj = get_object_or_404(query, pk=pk)
+        videos_query = Video.objects.filter(channel=channel_obj).order_by('-id')
+        page = self.paginate_queryset(videos_query)
         if page is not None:
             serializer = VideoWithRecordAtSerializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-        serializer = VideoWithRecordAtSerializer(query, many=True)
+        serializer = VideoWithRecordAtSerializer(videos_query, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'], name='the number of videos on the channel')
+    def count(self, request, pk=None):
+        query = self.get_queryset()
+        channel_obj = get_object_or_404(query, pk=pk)
+        count = Video.objects.filter(channel=channel_obj).count()
+        return Response({'total_count': count})
 
 
 class VideoViewSet(viewsets.ReadOnlyModelViewSet):
@@ -99,8 +108,8 @@ class VideoViewSet(viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request, pk=None):
         query = self.get_queryset()
-        serializer = self.get_serializer_class()
         video_obj = get_object_or_404(query, pk=pk)
+        serializer = self.get_serializer_class()
         data = serializer(video_obj).data
         return Response(data)
     
