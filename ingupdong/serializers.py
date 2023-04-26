@@ -128,7 +128,7 @@ class VideoWithRecordsSerializer(VideoSerializer):
 
     def get_records(self, obj):
         record_objs = TrendingBoard.objects.filter(video=obj)\
-            .select_related('record').values_list('record__date', flat=True).reverse()
+            .select_related('record').order_by('record__date').values_list('record__date', flat=True).distinct()
         return record_objs.all()
 
 
