@@ -12,7 +12,7 @@ def start():
 
     scheduler.add_job(
         crawl_youtube_trending,
-        trigger=CronTrigger(hour="6,18", minute="00"),
+        trigger=CronTrigger(hour="9,21", minute="00"),
         id="crawl-youtube-trending",
         max_instances=1,
         replace_existing=True,
@@ -20,7 +20,7 @@ def start():
 
     scheduler.add_job(
         connect_with_db,
-        trigger=CronTrigger(hour="5,17", minute="58", jitter=100),
+        trigger=CronTrigger(hour="8,20", minute="58", jitter=100),
         id="connect_with_db",
         max_instances=1,
         replace_existing=True,
