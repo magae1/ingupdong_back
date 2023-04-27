@@ -1,8 +1,12 @@
+import datetime
+from dateutil.relativedelta import relativedelta
+
 from rest_framework import viewsets, filters, generics
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, Http404
+from django.db.models import Count
 
 from ingupdong.models import TrendingBoard, RecordingBoard, Channel, Video
 from ingupdong.serializers import TrendingWithPrevSerializer, RecordingSerializer, \
@@ -56,10 +60,11 @@ class RecordingViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, pk=None):
         query = self.get_queryset()
         if pk == 'latest':
-            pk = RecordingBoard.objects.latest().id
-        elif not pk.isnumeric():
-            raise Http404("잘못된 요청입니다.")
-        record_obj = get_object_or_404(query, pk=pk)
+            pk = RecordingBoard.objects.latest().date
+        try:
+            record_obj = RecordingBoard.objects.get(date__exact=pk)
+        except RecordingBoard.DoesNotExist:
+            raise Http404('일치하는 기록이 없습니다.')
         serializer = PrevAndNextRecordingSerializer(record_obj, many=False)
         return Response(serializer.data)
 
@@ -95,8 +100,18 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
     def count(self, request, pk=None):
         query = self.get_queryset()
         channel_obj = get_object_or_404(query, pk=pk)
-        count = Video.objects.filter(channel=channel_obj).count()
-        return Response({'total_count': count})
+        total_count = Video.objects.filter(channel=channel_obj).count()
+        
+        today = datetime.date.today()
+        prev_date = today + relativedelta(days=-99)
+        print(prev_date)
+        recent_records_obj = TrendingBoard.objects.all().select_related('record').filter(record__date__gte=prev_date) \
+            .select_related('video').filter(video__channel=channel_obj)\
+            .values('record__date').annotate(count=Count('video_id'))\
+            .order_by('record__date').values('record__date', 'count')
+        recent_records = [{'day': obj['record__date'], 'value': obj['count']} for obj in recent_records_obj]
+        return Response({'total_count': total_count, 'recent_records': recent_records,
+                         'start_date': prev_date, 'end_date': today})
 
 
 class VideoViewSet(viewsets.ReadOnlyModelViewSet):
