@@ -1,4 +1,6 @@
 import datetime
+
+import dateutil.parser
 from dateutil.relativedelta import relativedelta
 
 from rest_framework import viewsets, filters, generics
@@ -60,9 +62,13 @@ class RecordingViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, pk=None):
         query = self.get_queryset()
         if pk == 'latest':
-            pk = RecordingBoard.objects.latest().date
+            date = RecordingBoard.objects.latest().record_at
+        else:
+            date = dateutil.parser.parse(pk)
         try:
-            record_obj = RecordingBoard.objects.get(date__exact=pk)
+            record_obj = query.filter(record_at__day=date.day,
+                                      record_at__month=date.month,
+                                      record_at__year=date.year).last()
         except RecordingBoard.DoesNotExist:
             raise Http404('일치하는 기록이 없습니다.')
         serializer = PrevAndNextRecordingSerializer(record_obj, many=False)
@@ -103,13 +109,12 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
         total_count = Video.objects.filter(channel=channel_obj).count()
         
         today = datetime.date.today()
-        prev_date = today + relativedelta(days=-99)
-        print(prev_date)
-        recent_records_obj = TrendingBoard.objects.all().select_related('record').filter(record__date__gte=prev_date) \
+        prev_date = today + relativedelta(days=-100)
+        recent_records_obj = TrendingBoard.objects.all().select_related('record').filter(record__record_at__gt=prev_date) \
             .select_related('video').filter(video__channel=channel_obj)\
-            .values('record__date').annotate(count=Count('video_id'))\
-            .order_by('record__date').values('record__date', 'count')
-        recent_records = [{'day': obj['record__date'], 'value': obj['count']} for obj in recent_records_obj]
+            .values('record__record_at').annotate(count=Count('video_id'))\
+            .order_by('record__record_at').values('record__record_at', 'count')
+        recent_records = [{'day': obj['record__record_at'], 'value': obj['count']} for obj in recent_records_obj]
         return Response({'total_count': total_count, 'recent_records': recent_records,
                          'start_date': prev_date, 'end_date': today})
 

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from ingupdong.models import Channel, Video, RecordingBoard, TrendingBoard
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.functions import TruncDate
 
 
 YOUTUBE_URL = "https://www.youtube.com/"
@@ -44,7 +45,8 @@ class VideoSerializer(SimpleVideoSerializer):
 
 
 class TrendingWithRecordSerializer(SimpleTrendingSerializer):
-    day = serializers.StringRelatedField(many=False, read_only=True, source='record')
+    day = serializers.SlugRelatedField(many=False, read_only=True,
+                                       slug_field='record_at', source='record')
 
     class Meta:
         model = TrendingBoard
@@ -61,7 +63,7 @@ class PrevAndNextRecordingSerializer(serializers.ModelSerializer):
 
     def get_prev_record(self, obj):
         try:
-            query = RecordingBoard.objects.filter(date__lt=obj.date).order_by('-date', '-time').first()
+            query = RecordingBoard.objects.filter(record_at__lt=obj.record_at).last()
             data = RecordingSerializer(query).data
         except ObjectDoesNotExist:
             return None
@@ -69,7 +71,7 @@ class PrevAndNextRecordingSerializer(serializers.ModelSerializer):
 
     def get_next_record(self, obj):
         try:
-            query = RecordingBoard.objects.filter(date__gt=obj.date).order_by('date', 'time').first()
+            query = RecordingBoard.objects.filter(record_at__gt=obj.record_at).first()
             data = RecordingSerializer(query).data
         except ObjectDoesNotExist:
             return None
@@ -102,7 +104,7 @@ class TrendingWithPrevSerializer(serializers.ModelSerializer):
 
     def get_prev_trend(self, obj):
         try:
-            prev_date = RecordingBoard.objects.filter(date__lt=obj.record.date).order_by('-date', '-time').first()
+            prev_date = RecordingBoard.objects.filter(record_at__lt=obj.record.record_at).last()
             prev_trend = TrendingBoard.objects.get(record=prev_date,
                                                    video=obj.video)
         except ObjectDoesNotExist:
@@ -126,21 +128,21 @@ class VideoWithRecordsSerializer(VideoSerializer):
         exclude = ['id']
 
     def get_records(self, obj):
-        record_objs = TrendingBoard.objects.filter(video=obj)\
-            .select_related('record').order_by('record__date').values_list('record__date', flat=True).distinct()
+        record_objs = TrendingBoard.objects.filter(video=obj).select_related('record')\
+            .annotate(record_date=TruncDate('record__record_at')).values('record_date').distinct()
         return record_objs.all()
 
 
 class VideoWithRecordAtSerializer(SimpleVideoSerializer):
-    record_at = serializers.SerializerMethodField(allow_null=False)
+    initial_record = serializers.SerializerMethodField(allow_null=False)
 
     class Meta:
         model = Video
         fields = '__all__'
         ordering = ['-id']
 
-    def get_record_at(self, obj):
+    def get_initial_record(self, obj):
         record_obj = TrendingBoard.objects.filter(video=obj)\
             .select_related('record').latest('record').record
         data = RecordingSerializer(record_obj, many=False).data
-        return data.get('date')
+        return data.get('record_at')

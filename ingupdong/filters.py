@@ -1,11 +1,11 @@
 import django_filters as filters
 
-from ingupdong.models import RecordingBoard, TrendingBoard, Video
+from ingupdong.models import RecordingBoard
 
 
 class RecordingFilterSet(filters.FilterSet):
-    month = filters.NumberFilter(field_name='date', lookup_expr='month', required=True)
-    year = filters.NumberFilter(field_name='date', lookup_expr='year', required=True)
+    month = filters.NumberFilter(field_name='record_at', lookup_expr='month', required=True)
+    year = filters.NumberFilter(field_name='record_at', lookup_expr='year', required=True)
     
     class Meta:
         model = RecordingBoard

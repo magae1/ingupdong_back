@@ -23,17 +23,13 @@ class Video(models.Model):
 
 
 class RecordingBoard(models.Model):
-    date = models.DateField(auto_now=True)
-    time = models.TimeField(auto_now=True)
+    record_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'recording'
-        get_latest_by = ['date', 'time']
-        ordering = ['-date', 'time']
+        get_latest_by = ['record_at']
+        ordering = ['record_at']
         
-    def __str__(self):
-        return f'{self.date} {self.time}'
-
 
 class TrendingManager(models.Manager):
     @transaction.atomic
