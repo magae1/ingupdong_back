@@ -68,7 +68,8 @@ class RecordingViewSet(viewsets.ReadOnlyModelViewSet):
         try:
             record_obj = query.filter(record_at__day=date.day,
                                       record_at__month=date.month,
-                                      record_at__year=date.year).last()
+                                      record_at__year=date.year,
+                                      record_at__hour=date.hour).last()
         except RecordingBoard.DoesNotExist:
             raise Http404('일치하는 기록이 없습니다.')
         serializer = PrevAndNextRecordingSerializer(record_obj, many=False)
