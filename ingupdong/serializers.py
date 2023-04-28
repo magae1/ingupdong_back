@@ -143,6 +143,6 @@ class VideoWithRecordAtSerializer(SimpleVideoSerializer):
 
     def get_initial_record(self, obj):
         record_obj = TrendingBoard.objects.filter(video=obj)\
-            .select_related('record').latest('record').record
+            .select_related('record').earliest('record').record
         data = RecordingSerializer(record_obj, many=False).data
         return data.get('record_at')
