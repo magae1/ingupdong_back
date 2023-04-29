@@ -129,9 +129,17 @@ class VideoWithRecordsSerializer(VideoSerializer):
 
     def get_records(self, obj):
         record_objs = TrendingBoard.objects.filter(video=obj).select_related('record')\
-            .annotate(record_date=TruncDate('record__record_at')).values('record_date').distinct()
-        return record_objs.all()
-
+            .annotate(record_date=TruncDate('record__record_at')).values('record_date')
+        print(record_objs)
+        result = []
+        prev_date = None
+        for obj in record_objs:
+            cur_date = obj['record_date']
+            if prev_date is None or prev_date != cur_date:
+                result.append(cur_date)
+            prev_date = cur_date
+        return result
+    
 
 class VideoWithRecordAtSerializer(SimpleVideoSerializer):
     initial_record = serializers.SerializerMethodField(allow_null=False)

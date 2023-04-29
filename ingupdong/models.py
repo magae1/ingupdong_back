@@ -9,7 +9,7 @@ class Channel(models.Model):
         db_table = 'channel'
 
     def __str__(self):
-        return self.name
+        return f'ID[{self.id}]:{self.name}'
 
 
 class Video(models.Model):
@@ -20,6 +20,9 @@ class Video(models.Model):
 
     class Meta:
         db_table = 'video'
+        
+    def __str__(self):
+        return f'{self.title}'
 
 
 class RecordingBoard(models.Model):
@@ -30,6 +33,9 @@ class RecordingBoard(models.Model):
         get_latest_by = ['record_at']
         ordering = ['record_at']
         
+    def __str__(self):
+        return self.record_at
+
 
 class TrendingManager(models.Manager):
     @transaction.atomic

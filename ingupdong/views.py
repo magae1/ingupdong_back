@@ -62,16 +62,16 @@ class RecordingViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, pk=None):
         query = self.get_queryset()
         if pk == 'latest':
-            date = RecordingBoard.objects.latest().record_at
+            record_obj = query.latest()
         else:
             date = dateutil.parser.parse(pk)
-        try:
-            record_obj = query.filter(record_at__day=date.day,
-                                      record_at__month=date.month,
-                                      record_at__year=date.year,
-                                      record_at__hour=date.hour).last()
-        except RecordingBoard.DoesNotExist:
-            raise Http404('일치하는 기록이 없습니다.')
+            try:
+                record_obj = query.filter(record_at__day=date.day,
+                                          record_at__month=date.month,
+                                          record_at__year=date.year,
+                                          record_at__hour=date.hour).last()
+            except RecordingBoard.DoesNotExist:
+                raise Http404('일치하는 기록이 없습니다.')
         serializer = PrevAndNextRecordingSerializer(record_obj, many=False)
         return Response(serializer.data)
 
@@ -111,8 +111,7 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
         
         today = datetime.date.today()
         prev_date = today + relativedelta(days=-100)
-        recent_records_obj = TrendingBoard.objects.all().select_related('record').filter(record__record_at__gt=prev_date) \
-            .select_related('video').filter(video__channel=channel_obj)\
+        recent_records_obj = TrendingBoard.objects.filter(record__record_at__gt=prev_date, video__channel=channel_obj) \
             .values('record__record_at').annotate(count=Count('video_id'))\
             .order_by('record__record_at').values('record__record_at', 'count')
         recent_records = [{'day': obj['record__record_at'], 'value': obj['count']} for obj in recent_records_obj]
