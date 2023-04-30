@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, Http404
 from django.db.models import Count
+from django.db.models.functions import TruncDate
 
 from ingupdong.models import TrendingBoard, RecordingBoard, Channel, Video
 from ingupdong.serializers import TrendingWithPrevSerializer, RecordingSerializer, \
@@ -112,9 +113,9 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
         today = datetime.date.today()
         prev_date = today + relativedelta(days=-100)
         recent_records_obj = TrendingBoard.objects.filter(record__record_at__gt=prev_date, video__channel=channel_obj) \
-            .values('record__record_at').annotate(count=Count('video_id'))\
-            .order_by('record__record_at').values('record__record_at', 'count')
-        recent_records = [{'day': obj['record__record_at'], 'value': obj['count']} for obj in recent_records_obj]
+            .values('record__record_at__date').order_by('record__record_at__date') \
+            .annotate(count=Count('video_id', distinct=True)).values('record__record_at__date', 'count')
+        recent_records = [{'day': obj['record__record_at__date'], 'value': obj['count']} for obj in recent_records_obj]
         return Response({'total_count': total_count, 'recent_records': recent_records,
                          'start_date': prev_date, 'end_date': today})
 

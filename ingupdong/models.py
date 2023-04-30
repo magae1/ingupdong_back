@@ -9,7 +9,7 @@ class Channel(models.Model):
         db_table = 'channel'
 
     def __str__(self):
-        return f'ID[{self.id}]:{self.name}'
+        return f'[{self.id}]:{self.name}'
 
 
 class Video(models.Model):
