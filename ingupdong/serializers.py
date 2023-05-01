@@ -87,7 +87,7 @@ class ChannelWithLatestTrendSerializer(ChannelSerializer):
 
     def get_latest_video(self, obj):
         try:
-            query = TrendingBoard.objects.select_related('video').filter(video__channel=obj).first()
+            query = TrendingBoard.objects.select_related('video').filter(video__channel=obj).last()
             data = SimpleVideoSerializer(query.video).data
         except ObjectDoesNotExist:
             return None
