@@ -26,8 +26,7 @@ class TrendPagination(LimitOffsetPagination):
 
 
 class VideoPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page'
+    page_size = 3
     max_page_size = 10
 
 
