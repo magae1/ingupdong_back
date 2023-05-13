@@ -1,6 +1,6 @@
 import datetime
 
-import dateutil.parser
+from dateutil import parser
 from dateutil.relativedelta import relativedelta
 
 from rest_framework import viewsets, filters, generics
@@ -9,7 +9,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, Http404
 from django.db.models import Count
-from django.db.models.functions import TruncDate
 
 from ingupdong.models import TrendingBoard, RecordingBoard, Channel, Video
 from ingupdong.serializers import TrendingWithPrevSerializer, RecordingSerializer, \
@@ -26,7 +25,7 @@ class TrendPagination(LimitOffsetPagination):
 
 
 class VideoPagination(PageNumberPagination):
-    page_size = 3
+    page_size = 5
     max_page_size = 10
 
 
@@ -34,10 +33,10 @@ class TrendingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TrendingBoard.objects.all()
     serializer_class = TrendingWithPrevSerializer
     pagination_class = TrendPagination
-
+    
     def list(self, request):
         raise Http404("잘못된 요청입니다.")
-
+    
     def retrieve(self, request, pk=None):
         if pk == 'latest':
             trend_query = TrendingBoard.objects.filter(record=RecordingBoard.objects.latest())
@@ -58,13 +57,13 @@ class RecordingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RecordingBoard.objects.all()
     serializer_class = RecordingSerializer
     filterset_class = RecordingFilterSet
-
+    
     def retrieve(self, request, pk=None):
         query = self.get_queryset()
         if pk == 'latest':
             record_obj = query.latest()
         else:
-            date = dateutil.parser.parse(pk)
+            date = parser.parse(pk)
             try:
                 record_obj = query.filter(record_at__day=date.day,
                                           record_at__month=date.month,
@@ -109,14 +108,17 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
         channel_obj = get_object_or_404(query, pk=pk)
         total_count = Video.objects.filter(channel=channel_obj).count()
         
-        today = datetime.date.today()
-        prev_date = today + relativedelta(days=-100)
+        try:
+            target_day = parser.parse(request.GET.get('target-day'))
+        except:
+            target_day = datetime.date.today()
+        prev_date = target_day + relativedelta(days=-49)
         recent_records_obj = TrendingBoard.objects.filter(record__record_at__gt=prev_date, video__channel=channel_obj) \
             .values('record__record_at__date').order_by('record__record_at__date') \
             .annotate(count=Count('video_id', distinct=True)).values('record__record_at__date', 'count')
         recent_records = [{'day': obj['record__record_at__date'], 'value': obj['count']} for obj in recent_records_obj]
         return Response({'total_count': total_count, 'recent_records': recent_records,
-                         'start_date': prev_date, 'end_date': today})
+                         'start_date': prev_date, 'end_date': target_day})
 
 
 class VideoViewSet(viewsets.ReadOnlyModelViewSet):
@@ -125,7 +127,7 @@ class VideoViewSet(viewsets.ReadOnlyModelViewSet):
     
     def list(self, request, *args, **kwargs):
         raise Http404()
-
+    
     def retrieve(self, request, pk=None):
         query = self.get_queryset()
         video_obj = get_object_or_404(query, pk=pk)
@@ -145,5 +147,3 @@ class ChannelListView(generics.ListAPIView):
     serializer_class = ChannelSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
-    
-    
