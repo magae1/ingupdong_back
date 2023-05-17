@@ -4,6 +4,7 @@ from django.db import models, transaction
 class Channel(models.Model):
     name = models.CharField(max_length=150)
     handle = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'channel'
@@ -17,6 +18,7 @@ class Video(models.Model):
     channel = models.ForeignKey(Channel, on_delete=models.CASCADE,
                                 related_name='channel')
     url = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'video'
