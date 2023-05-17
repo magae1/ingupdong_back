@@ -107,12 +107,13 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
         query = self.get_queryset()
         channel_obj = get_object_or_404(query, pk=pk)
         total_count = Video.objects.filter(channel=channel_obj).count()
-        
+        created_datetime = channel_obj.created_at.date()
         try:
             target_day = parser.parse(request.GET.get('target-day'))
         except:
             target_day = datetime.date.today()
         prev_date = target_day + relativedelta(days=-49)
+        prev_date = prev_date if prev_date > created_datetime else created_datetime
         recent_records_obj = TrendingBoard.objects.filter(record__record_at__gt=prev_date, video__channel=channel_obj) \
             .values('record__record_at__date').order_by('record__record_at__date') \
             .annotate(count=Count('video_id', distinct=True)).values('record__record_at__date', 'count')
