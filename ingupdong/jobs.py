@@ -1,4 +1,6 @@
 import os
+import time
+
 import requests
 from bs4 import BeautifulSoup
 from django.db import connections
@@ -47,6 +49,7 @@ def crawl_youtube_trending():
                                               handle=clear_param(tags[1].a['href']),
                                               record_id=record_id,
                                               )
+        time.sleep(0.5)
 
 
 # The `close_old_connections` decorator ensures that database connections, that have become
