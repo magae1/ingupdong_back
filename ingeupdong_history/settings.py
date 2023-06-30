@@ -33,7 +33,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
     'django_apscheduler',
@@ -65,7 +64,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_URLS_REGEX = r"^/api/|/admin/.*$"
 
-ROOT_URLCONF = 'back.urls'
+ROOT_URLCONF = 'ingeupdong_history.urls'
 
 TEMPLATES = [
     {
@@ -84,7 +83,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'back.wsgi.application'
+WSGI_APPLICATION = 'ingeupdong_history.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

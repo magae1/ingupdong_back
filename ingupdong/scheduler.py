@@ -3,7 +3,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from django_apscheduler.jobstores import DjangoJobStore
 
-from ingupdong.jobs import crawl_youtube_trending, delete_old_job_executions, connect_with_db
+from .jobs import crawl_youtube_trending, delete_old_job_executions, connect_with_db
 
 
 def start():

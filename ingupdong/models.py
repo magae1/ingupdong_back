@@ -58,8 +58,8 @@ class TrendingBoard(models.Model):
     views = models.PositiveBigIntegerField()
     record = models.ForeignKey(RecordingBoard, on_delete=models.CASCADE)
 
-    customs = TrendingManager()
     objects = models.Manager()
+    customs = TrendingManager()
 
     class Meta:
         db_table = 'trending'

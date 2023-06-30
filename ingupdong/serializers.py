@@ -1,8 +1,9 @@
-from rest_framework import serializers
-from ingupdong.models import Channel, Video, RecordingBoard, TrendingBoard
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import TruncDate
 
+from rest_framework import serializers
+
+from .models import Channel, Video, RecordingBoard, TrendingBoard
 
 YOUTUBE_URL = "https://www.youtube.com/"
 
