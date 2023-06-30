@@ -1,3 +1,5 @@
+import time
+
 from django.db import models, transaction
 
 
@@ -43,11 +45,13 @@ class TrendingManager(models.Manager):
     @transaction.atomic
     def create_trending(self, rank, title, url, views, channel, handle, record_id):
         channel, create = Channel.objects.get_or_create(name=channel, defaults={'handle': handle})
+        time.sleep(0.5)
         video, create = Video.objects.update_or_create(url=url,
                                                        defaults={
                                                         'channel': channel,
                                                         'title': title,
                                                        })
+        time.sleep(0.5)
         return self.create(rank=rank, video=video, views=views, record_id=record_id)
 
 
