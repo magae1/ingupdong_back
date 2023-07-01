@@ -39,9 +39,9 @@ def crawl_youtube_trending():
         else:
             break
 
-    for index, video in enumerate(videos):
+    for index, video in enumerate(videos, start=1):
         tags = video.find_all("yt-formatted-string", limit=2)
-        TrendingBoard.customs.create_trending(rank=index+1,
+        TrendingBoard.customs.create_trending(rank=index,
                                               title=tags[0].string,
                                               url=clear_param(tags[0].parent['href']),
                                               views=get_num(tags[0]['aria-label'].split(' ').pop()),
@@ -49,7 +49,6 @@ def crawl_youtube_trending():
                                               handle=clear_param(tags[1].a['href']),
                                               record_id=record_id,
                                               )
-        time.sleep(0.5)
 
 
 # The `close_old_connections` decorator ensures that database connections, that have become
