@@ -45,7 +45,7 @@ def crawl_youtube_trending():
                                               title=tags[0].string,
                                               url=clear_param(tags[0].parent['href']),
                                               views=get_num(tags[0]['aria-label'].split(' ').pop()),
-                                              channel=tags[1].a.string,
+                                              channel_name=tags[1].a.string,
                                               handle=clear_param(tags[1].a['href']),
                                               record_id=record_id,
                                               )
