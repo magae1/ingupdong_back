@@ -44,7 +44,7 @@ class RecordingBoard(models.Model):
 class TrendingManager(models.Manager):
     @transaction.atomic
     def create_trending(self, rank, title, url, views, channel_name, handle, record_id):
-        channel, create = Channel.objects.get_or_create(name=channel_name, defaults={'handle': handle})
+        channel, create = Channel.objects.update_or_create(name=channel_name, defaults={'handle': handle})
         video, create = Video.objects.update_or_create(url=url,
                                                        defaults={
                                                         'channel': channel,
