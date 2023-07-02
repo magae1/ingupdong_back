@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=120)),
                 ('url', models.CharField(max_length=50, unique=True)),
-                ('channel', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='channel', to='ingupdong.channel')),
+                ('channel', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='channel', to='ingeupdong.channel')),
             ],
             options={
                 'db_table': 'video',
@@ -54,8 +54,8 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('rank', models.PositiveSmallIntegerField()),
                 ('views', models.PositiveBigIntegerField()),
-                ('record', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ingupdong.recordingboard')),
-                ('video', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='video', to='ingupdong.video')),
+                ('record', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ingeupdong.recordingboard')),
+                ('video', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='video', to='ingeupdong.video')),
             ],
             options={
                 'db_table': 'trending',

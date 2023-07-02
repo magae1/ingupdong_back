@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'django_apscheduler',
-    'ingupdong',
+    'ingeupdong',
 ]
 
 MIDDLEWARE = [
@@ -64,7 +64,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_URLS_REGEX = r"^/api/|/admin/.*$"
 
-ROOT_URLCONF = 'ingeupdong_history.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -83,7 +83,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ingeupdong_history.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

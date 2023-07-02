@@ -1,6 +1,6 @@
 import django_filters as filters
 
-from ingupdong.models import RecordingBoard
+from .models import RecordingBoard
 
 
 class RecordingFilterSet(filters.FilterSet):

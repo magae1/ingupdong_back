@@ -1,5 +1,4 @@
 import os
-import time
 
 import requests
 from bs4 import BeautifulSoup
@@ -7,7 +6,7 @@ from django.db import connections
 from django_apscheduler import util
 from django_apscheduler.models import DjangoJobExecution
 
-from ingupdong.models import RecordingBoard, TrendingBoard
+from .models import RecordingBoard, TrendingBoard
 
 
 CRAWL_URL = os.environ.get('CRAWL_URL', 'localhost')

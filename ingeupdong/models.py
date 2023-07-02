@@ -1,5 +1,3 @@
-import time
-
 from django.db import models, transaction
 
 
@@ -66,3 +64,7 @@ class TrendingBoard(models.Model):
     class Meta:
         db_table = 'trending'
         ordering = ['record', 'rank']
+
+    def __str__(self):
+        return f'{self.record.record_at}[{self.rank}위]:{self.video.title}'
+    

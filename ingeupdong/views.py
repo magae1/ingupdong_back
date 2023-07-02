@@ -1,5 +1,8 @@
 import datetime
 
+from django.shortcuts import get_object_or_404, Http404
+from django.db.models import Count
+
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 
@@ -7,14 +10,12 @@ from rest_framework import viewsets, filters, generics
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404, Http404
-from django.db.models import Count
 
-from ingupdong.models import TrendingBoard, RecordingBoard, Channel, Video
-from ingupdong.serializers import TrendingWithPrevSerializer, RecordingSerializer, \
+from .models import TrendingBoard, RecordingBoard, Channel, Video
+from .serializers import TrendingWithPrevSerializer, RecordingSerializer, \
     PrevAndNextRecordingSerializer, ChannelSerializer, ChannelWithLatestTrendSerializer, \
     VideoWithRecordsSerializer, VideoWithRecordAtSerializer, TrendingWithRecordSerializer
-from ingupdong.filters import RecordingFilterSet
+from .filters import RecordingFilterSet
 
 
 class TrendPagination(LimitOffsetPagination):

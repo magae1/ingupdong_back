@@ -17,7 +17,7 @@ from django.urls import path, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from rest_framework import routers
-from ingupdong.views import TrendingViewSet, RecordingViewSet, ChannelViewSet, VideoViewSet,\
+from ingeupdong.views import TrendingViewSet, RecordingViewSet, ChannelViewSet, VideoViewSet,\
     ChannelListView
 
 router = routers.DefaultRouter()
