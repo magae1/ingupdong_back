@@ -88,7 +88,8 @@ class ChannelWithLatestTrendSerializer(ChannelSerializer):
 
     def get_latest_video(self, obj):
         try:
-            query = TrendingBoard.objects.select_related('video').filter(video__channel=obj).last()
+            query = TrendingBoard.objects.select_related('video')
+            query = query.filter(video__channel=obj).last()
             data = SimpleVideoSerializer(query.video).data
         except ObjectDoesNotExist:
             return None
@@ -106,8 +107,7 @@ class TrendingWithPrevSerializer(serializers.ModelSerializer):
     def get_prev_trend(self, obj):
         try:
             prev_date = RecordingBoard.objects.filter(record_at__lt=obj.record.record_at).last()
-            prev_trend = TrendingBoard.objects.get(record=prev_date,
-                                                   video=obj.video)
+            prev_trend = TrendingBoard.objects.get(record=prev_date, video=obj.video)
         except ObjectDoesNotExist:
             prev_trend = None
         except IndexError:
@@ -129,13 +129,14 @@ class VideoWithRecordsSerializer(VideoSerializer):
         exclude = ['id']
 
     def get_records(self, obj):
-        record_objs = TrendingBoard.objects.filter(video=obj).select_related('record')\
-            .annotate(record_date=TruncDate('record__record_at')).values('record_date')
-        print(record_objs)
+        record_objs = TrendingBoard.objects.filter(video=obj)
+        record_objs = record_objs.select_related('record')
+        record_objs = record_objs.annotate(record_date=TruncDate('record__record_at'))
+        record_dates = record_objs.values('record_date')
         result = []
         prev_date = None
-        for obj in record_objs:
-            cur_date = obj['record_date']
+        for date in record_dates:
+            cur_date = date['record_date']
             if prev_date is None or prev_date != cur_date:
                 result.append(cur_date)
             prev_date = cur_date
@@ -151,7 +152,8 @@ class VideoWithRecordAtSerializer(SimpleVideoSerializer):
         ordering = ['-id']
 
     def get_initial_record(self, obj):
-        record_obj = TrendingBoard.objects.filter(video=obj)\
-            .select_related('record').earliest('record').record
-        data = RecordingSerializer(record_obj, many=False).data
+        record_obj = TrendingBoard.objects.filter(video=obj)
+        record_obj = record_obj.select_related('record')
+        record_obj = record_obj.earliest('record')
+        data = RecordingSerializer(record_obj.record, many=False).data
         return data.get('record_at')

@@ -1,7 +1,6 @@
 import datetime
 
 from django.shortcuts import get_object_or_404, Http404
-from django.db.models import Count
 
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
@@ -66,10 +65,7 @@ class RecordingViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             date = parser.parse(pk)
             try:
-                record_obj = query.filter(record_at__day=date.day,
-                                          record_at__month=date.month,
-                                          record_at__year=date.year,
-                                          record_at__hour=date.hour).last()
+                record_obj = RecordingBoard.customs.get_by_datetime(date)
             except RecordingBoard.DoesNotExist:
                 raise Http404('일치하는 기록이 없습니다.')
         serializer = PrevAndNextRecordingSerializer(record_obj, many=False)
@@ -113,11 +109,8 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
         except:
             target_day = datetime.date.today()
         prev_date = target_day + relativedelta(days=-49)
-        recent_records_obj = TrendingBoard.objects.filter(record__record_at__gt=prev_date, video__channel=channel_obj) \
-            .values('record__record_at__date').order_by('record__record_at__date') \
-            .annotate(count=Count('video_id', distinct=True)).values('record__record_at__date', 'count')
-        recent_records = [{'day': obj['record__record_at__date'], 'value': obj['count']} for obj in recent_records_obj]
-        return Response({'total_count': total_count, 'recent_records': recent_records,
+        recent_counts_obj = TrendingBoard.customs.counts_of_period_days(channel_obj, prev_date)
+        return Response({'total_count': total_count, 'recent_records': recent_counts_obj,
                          'start_date': prev_date, 'end_date': target_day})
 
 
