@@ -110,7 +110,8 @@ class ChannelViewSet(viewsets.ReadOnlyModelViewSet):
             target_day = datetime.date.today()
         prev_date = target_day + relativedelta(days=-49)
         recent_counts_obj = TrendingBoard.customs.counts_of_period_days(channel_obj, prev_date)
-        return Response({'total_count': total_count, 'recent_records': recent_counts_obj,
+        recent_records = [{'day': obj['record__record_at__date'], 'value': obj['count']} for obj in recent_counts_obj]
+        return Response({'total_count': total_count, 'recent_records': recent_records,
                          'start_date': prev_date, 'end_date': target_day})
 
 
