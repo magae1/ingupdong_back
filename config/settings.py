@@ -173,4 +173,4 @@ APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 # Longer running jobs should probably be handed over to a background task processing library
 # that supports multiple background worker processes instead (e.g. Dramatiq, Celery, Django-RQ,
 # etc. See: https://djangopackages.org/grids/g/workers-queues-tasks/ for popular options).
-APSCHEDULER_RUN_NOW_TIMEOUT = 120  # Seconds
+APSCHEDULER_RUN_NOW_TIMEOUT = 40  # Seconds

@@ -2,11 +2,11 @@ import os
 
 import requests
 from bs4 import BeautifulSoup
-from django.db import connections
+from django.db import connections, transaction
 from django_apscheduler import util
 from django_apscheduler.models import DjangoJobExecution
 
-from .models import RecordingBoard, TrendingBoard
+from .models import RecordingBoard, Video, TrendingBoard, Channel
 
 
 CRAWL_URL = os.environ.get('CRAWL_URL', 'localhost')
@@ -37,19 +37,22 @@ def crawl_youtube_trending():
             continue
         else:
             break
-
+    
+    trend_objs = []
     for index, video in enumerate(videos, start=1):
         tags = video.find_all("yt-formatted-string", limit=2)
-        TrendingBoard.customs.create_trending(rank=index,
-                                              title=tags[0].string,
-                                              url=clear_param(tags[0].parent['href']),
-                                              views=get_num(tags[0]['aria-label'].split(' ').pop()),
-                                              channel_name=tags[1].a.string,
-                                              handle=clear_param(tags[1].a['href']),
-                                              record_id=record_id,
-                                              )
-
-
+        with transaction.atomic():
+            channel, create = Channel.objects.update_or_create(handle=clear_param(tags[1].a['href']),
+                                                               defaults={'name': tags[1].a.string})
+            video, create = Video.objects.update_or_create(channel=channel, url=clear_param(tags[0].parent['href']),
+                                                           defaults={'title': tags[0].string})
+        trend_objs.append(TrendingBoard(rank=index,
+                                        video=video,
+                                        views=get_num(tags[0]['aria-label'].split(' ').pop()),
+                                        record_id=record_id))
+    TrendingBoard.objects.bulk_create(trend_objs)
+    
+    
 # The `close_old_connections` decorator ensures that database connections, that have become
 # unusable or are obsolete, are closed before and after your job has run. You should use it
 # to wrap any jobs that you schedule that access the Django database in any way.
