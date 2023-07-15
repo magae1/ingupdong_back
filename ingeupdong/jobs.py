@@ -7,6 +7,7 @@ from django_apscheduler import util
 from django_apscheduler.models import DjangoJobExecution
 
 from .models import RecordingBoard, Video, TrendingBoard, Channel
+from .signals import after_crawl_trending
 
 
 CRAWL_URL = os.environ.get('CRAWL_URL', 'localhost')
@@ -51,6 +52,7 @@ def crawl_youtube_trending():
                                         views=get_num(tags[0]['aria-label'].split(' ').pop()),
                                         record_id=record_id))
     TrendingBoard.objects.bulk_create(trend_objs)
+    after_crawl_trending.send(sender="crawl_youtube_trend", trend_objs=trend_objs)
     
     
 # The `close_old_connections` decorator ensures that database connections, that have become

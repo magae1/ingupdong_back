@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_apscheduler',
     'ingeupdong',
+    'rank',
 ]
 
 MIDDLEWARE = [
