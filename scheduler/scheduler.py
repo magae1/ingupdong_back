@@ -3,7 +3,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from django_apscheduler.jobstores import DjangoJobStore
 
-from .jobs import crawl_youtube_trending, delete_old_job_executions, connect_with_db
+from .jobs import crawl_youtube_trending, delete_old_job_executions, \
+    connect_with_db, delete_old_scoring_boards
 
 
 def start():
@@ -22,6 +23,16 @@ def start():
         connect_with_db,
         trigger=CronTrigger(hour="5,17", minute="58", jitter=30),
         id="connect_with_db",
+        max_instances=1,
+        replace_existing=True,
+    )
+    
+    scheduler.add_job(
+        delete_old_scoring_boards,
+        trigger=CronTrigger(
+            day_of_week="mon", hour="01", minute="00"
+        ),
+        id="delete_old_scoring_boards",
         max_instances=1,
         replace_existing=True,
     )

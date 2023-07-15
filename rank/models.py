@@ -11,9 +11,13 @@ class ScoringBoardManager(models.Manager):
 
 
 class ScoringBoard(models.Model):
-    channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE,
+                                related_name='scores')
     score = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    objects = models.Manager()
+    customs = ScoringBoardManager()
     
     class Meta:
         db_table = 'scores_on_channel'

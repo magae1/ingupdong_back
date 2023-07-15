@@ -1,28 +1,22 @@
-import os
-
 import requests
 from bs4 import BeautifulSoup
 from django.db import connections, transaction
 from django_apscheduler import util
 from django_apscheduler.models import DjangoJobExecution
 
-from .models import RecordingBoard, Video, TrendingBoard, Channel
-from .signals import after_crawl_trending
+from ingeupdong.models import RecordingBoard, Video, TrendingBoard, Channel
+from ingeupdong.signals import after_crawl_trending
+from rank.models import ScoringBoard
+from config.settings import CRAWL_URL
+from .utils import clear_param, get_num
 
 
-CRAWL_URL = os.environ.get('CRAWL_URL', 'localhost')
-
-
-def get_num(string):
-    new_string = string.replace(",", "")
-    return new_string[:-1]
-
-
-def clear_param(string):
-    return string[1:]
-
-
-@util.close_old_connections
+@util.retry_on_db_operational_error
+def delete_old_scoring_boards():
+    ScoringBoard.customs.delete_old_scores(7)
+    
+    
+@util.retry_on_db_operational_error
 def crawl_youtube_trending():
     videos = []
     while True:
@@ -59,6 +53,7 @@ def crawl_youtube_trending():
 # unusable or are obsolete, are closed before and after your job has run. You should use it
 # to wrap any jobs that you schedule that access the Django database in any way.
 @util.close_old_connections
+@util.retry_on_db_operational_error
 def delete_old_job_executions(max_age=604_800):
     """
     This job deletes APScheduler job execution entries older than `max_age` from the database.
@@ -72,5 +67,6 @@ def delete_old_job_executions(max_age=604_800):
 
 
 @util.close_old_connections
+@util.retry_on_db_operational_error
 def connect_with_db():
     connections['default'].connect()

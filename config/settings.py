@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django_apscheduler',
     'ingeupdong',
     'rank',
+    'scheduler',
 ]
 
 MIDDLEWARE = [
@@ -159,6 +160,8 @@ REST_FRAMEWORK = {
     ],
     'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
 }
+
+CRAWL_URL = os.environ.get('CRAWL_URL', 'localhost')
 
 # Format string for displaying run time timestamps in the Django admin site. The default
 # just adds seconds to the standard Django format, which is useful for displaying the timestamps
