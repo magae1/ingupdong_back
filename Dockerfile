@@ -16,8 +16,6 @@ COPY . .
 # requirement.txt의 라이브러리 설치
 RUN pip install -r requirements.txt
 
-# db 최신화
-RUN ./manage.py migrate
 # port where the Django app runs
 EXPOSE 8000
 
