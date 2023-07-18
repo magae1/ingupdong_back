@@ -10,12 +10,12 @@ from ingeupdong.signals import after_crawl_trending
 def score_on_channel_by_trends(sender, scores, **kwargs):
     for k, v in scores.items():
         score_obj = ScoreOnChannel.objects.get(channel=v[0])
-        score_obj.score += (v[1] * 7)
+        score_obj.score += (v[1] * 3)
         score_obj.save()
 
 
 @receiver(post_save, sender=Channel)
 def add_score_on_channel(sender, instance, created, **kwargs):
     if created:
-        ScoreOnChannel.objects.create(channel=instance)
+        ScoreOnChannel.objects.create(channel=instance, score=100)
         

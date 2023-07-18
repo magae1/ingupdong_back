@@ -43,15 +43,17 @@ def crawl_youtube_trending():
             video_obj, created = Video.objects.update_or_create(channel=channel_obj,
                                                                 url=clear_param(tags[0].parent['href']),
                                                                 defaults={'title': tags[0].string})
-        if channel_obj.id in scores:
-            scores[channel_obj.id] = (channel_obj, scores[channel_obj.id][1] + index)
-        else:
-            scores[channel_obj.id] = (channel_obj, index)
             
         trend_objs.append(TrendingBoard(rank=index,
                                         video=video_obj,
                                         views=get_num(tags[0]['aria-label'].split(' ').pop()),
                                         record_id=record_id))
+        index = (len(videos) + 1) - index
+        if channel_obj.id in scores:
+            scores[channel_obj.id] = (channel_obj, scores[channel_obj.id][1] + index)
+        else:
+            scores[channel_obj.id] = (channel_obj, index)
+            
     TrendingBoard.objects.bulk_create(trend_objs)
     after_crawl_trending.send(sender="crawl_youtube_trend", scores=scores)
     
