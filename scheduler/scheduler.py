@@ -4,7 +4,7 @@ from apscheduler.triggers.cron import CronTrigger
 from django_apscheduler.jobstores import DjangoJobStore
 
 from .jobs import crawl_youtube_trending, delete_old_job_executions, \
-    connect_with_db, delete_old_scoring_boards
+    connect_with_db, one_day_jobs
 
 
 def start():
@@ -28,11 +28,9 @@ def start():
     )
     
     scheduler.add_job(
-        delete_old_scoring_boards,
-        trigger=CronTrigger(
-            day_of_week="mon", hour="01", minute="00"
-        ),
-        id="delete_old_scoring_boards",
+        one_day_jobs,
+        trigger=CronTrigger(day="*", hour="00", minute="30", jitter=60*15),
+        id="one_day_jobs",
         max_instances=1,
         replace_existing=True,
     )

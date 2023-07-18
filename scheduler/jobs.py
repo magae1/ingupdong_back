@@ -6,14 +6,14 @@ from django_apscheduler.models import DjangoJobExecution
 
 from ingeupdong.models import RecordingBoard, Video, TrendingBoard, Channel
 from ingeupdong.signals import after_crawl_trending
-from rank.models import ScoringBoard
+from rank.jobs import discount_scores
 from config.settings import CRAWL_URL
 from .utils import clear_param, get_num
 
 
 @util.retry_on_db_operational_error
-def delete_old_scoring_boards():
-    ScoringBoard.customs.delete_old_scores(7)
+def one_day_jobs():
+    discount_scores()
     
     
 @util.retry_on_db_operational_error
@@ -33,20 +33,27 @@ def crawl_youtube_trending():
         else:
             break
     
+    scores = {}
     trend_objs = []
     for index, video in enumerate(videos, start=1):
         tags = video.find_all("yt-formatted-string", limit=2)
         with transaction.atomic():
-            channel, create = Channel.objects.update_or_create(handle=clear_param(tags[1].a['href']),
-                                                               defaults={'name': tags[1].a.string})
-            video, create = Video.objects.update_or_create(channel=channel, url=clear_param(tags[0].parent['href']),
-                                                           defaults={'title': tags[0].string})
+            channel_obj, created = Channel.objects.update_or_create(handle=clear_param(tags[1].a['href']),
+                                                                    defaults={'name': tags[1].a.string})
+            video_obj, created = Video.objects.update_or_create(channel=channel_obj,
+                                                                url=clear_param(tags[0].parent['href']),
+                                                                defaults={'title': tags[0].string})
+        if channel_obj.id in scores:
+            scores[channel_obj.id] = (channel_obj, scores[channel_obj.id][1] + index)
+        else:
+            scores[channel_obj.id] = (channel_obj, index)
+            
         trend_objs.append(TrendingBoard(rank=index,
-                                        video=video,
+                                        video=video_obj,
                                         views=get_num(tags[0]['aria-label'].split(' ').pop()),
                                         record_id=record_id))
     TrendingBoard.objects.bulk_create(trend_objs)
-    after_crawl_trending.send(sender="crawl_youtube_trend", trend_objs=trend_objs)
+    after_crawl_trending.send(sender="crawl_youtube_trend", scores=scores)
     
     
 # The `close_old_connections` decorator ensures that database connections, that have become

@@ -1,21 +1,23 @@
 FROM python:3.9.16-slim-bullseye
 
-# where your code lives
+# 작업 디렉토리 설정
 WORKDIR $HOME_DIR
 
-# set environment variables
+# 환경변수 설정
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# install dependencies
+# 최신 pip로 업데이트
 RUN pip install --upgrade pip
 
-# copy whole project to your docker home directory.
+# 파일 복사
 COPY . .
 
-# run this command to install all dependencies
+# requirement.txt의 라이브러리 설치
 RUN pip install -r requirements.txt
 
+# db 최신화
+RUN ./manage.py migrate
 # port where the Django app runs
 EXPOSE 8000
 

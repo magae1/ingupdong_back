@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from .models import ScoringBoard
+from .models import ScoreOnChannel
 
-admin.site.register(ScoringBoard)
+admin.site.register(ScoreOnChannel)
