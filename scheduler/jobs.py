@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from django.db import connections, transaction
+from django.db import connections, transaction, OperationalError
 from django_apscheduler import util
 from django_apscheduler.models import DjangoJobExecution
 
@@ -11,11 +11,6 @@ from config.settings import CRAWL_URL
 from .utils import clear_param, get_num
 
 
-@util.retry_on_db_operational_error
-def one_day_jobs():
-    discount_scores()
-    
-    
 @util.retry_on_db_operational_error
 def crawl_youtube_trending():
     videos = []
@@ -75,7 +70,10 @@ def delete_old_job_executions(max_age=604_800):
     DjangoJobExecution.objects.delete_old_job_executions(max_age)
 
 
-@util.close_old_connections
 @util.retry_on_db_operational_error
 def connect_with_db():
-    connections['default'].connect()
+    try:
+        connections['default'].connect()
+    except OperationalError as operational_err:
+        print(operational_err)
+    discount_scores()
