@@ -17,8 +17,13 @@ def score_by_datedelta(target, offset=datetime.today(), max_score=100):
 def score_on_channel_by_trends(sender, scores, **kwargs):
     for k, v in scores.items():
         score_obj = ScoreOnChannel.objects.get(channel=v[0])
-        before_latest_video_obj = Video.objects.filter(channel=v[0]).order_by('-created_at')[1]
-        score_obj.score += (v[1] * 2) + score_by_datedelta(before_latest_video_obj.created_at)
+        
+        try:
+            before_latest_video_obj = Video.objects.filter(channel=v[0]).order_by('-created_at')[1]
+            added_score = score_by_datedelta(before_latest_video_obj.created_at)
+        except IndexError as e:
+            added_score = 50
+        score_obj.score += (v[1] * 2) + added_score
         score_obj.save()
 
 
