@@ -10,6 +10,6 @@ class Ranking(ListAPIView):
     
     def get_queryset(self):
         query_set = self.queryset
-        query_set = query_set[:12]
+        query_set = query_set[:16]
         return query_set
     
