@@ -29,6 +29,7 @@ class Video(models.Model):
 
     class Meta:
         db_table = 'video'
+        get_latest_by = ['created_at']
         
     def __str__(self):
         return f'{self.title}'

@@ -1,16 +1,24 @@
+from datetime import datetime
+
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
 from .models import ScoreOnChannel
-from ingeupdong.models import Channel
+from ingeupdong.models import Channel, Video
 from ingeupdong.signals import after_crawl_trending
 
+
+def score_by_datedelta(target, offset=datetime.today(), max_score=100):
+    timedelta = offset - target
+    return min(timedelta.days, max_score)
+    
 
 @receiver(after_crawl_trending)
 def score_on_channel_by_trends(sender, scores, **kwargs):
     for k, v in scores.items():
         score_obj = ScoreOnChannel.objects.get(channel=v[0])
-        score_obj.score += (v[1] * 3)
+        latest_video_obj = Video.objects.filter(channel=v[0]).latest()
+        score_obj.score += (v[1] * 3) + score_by_datedelta(latest_video_obj.created_at)
         score_obj.save()
 
 
