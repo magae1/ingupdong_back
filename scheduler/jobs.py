@@ -35,9 +35,9 @@ def crawl_youtube_trending():
         with transaction.atomic():
             channel_obj, created = Channel.objects.update_or_create(handle=clear_param(tags[1].a['href']),
                                                                     defaults={'name': tags[1].a.string})
-            video_obj, created = Video.objects.update_or_create(channel=channel_obj,
-                                                                url=clear_param(tags[0].parent['href']),
-                                                                defaults={'title': tags[0].string})
+            video_obj, created = Video.objects.update_or_create(url=clear_param(tags[0].parent['href']),
+                                                                defaults={'title': tags[0].string,
+                                                                          'channel': channel_obj})
             
         trend_objs.append(TrendingBoard(rank=index,
                                         video=video_obj,

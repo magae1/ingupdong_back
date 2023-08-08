@@ -23,7 +23,7 @@ def score_on_channel_by_trends(sender, scores, **kwargs):
             added_score = score_by_datedelta(before_latest_video_obj.created_at)
         except IndexError as e:
             added_score = 50
-        score_obj.score += (v[1] * 2) + added_score
+        score_obj.score += (v[1] * 5) + added_score
         score_obj.save()
 
 
